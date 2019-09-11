@@ -1,2 +1,2 @@
 # libsvmintel
-LIBSVM fork for Intel's SIMD
+LIBSVM fork for Intel SIMD
