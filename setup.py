@@ -8,9 +8,19 @@ import shutil
 def _build_cmake():
     if sys.platform == 'win32':
         print('CMake build for Windows')
+
+        vcvars_script = 'vcvars64.bat'
+        vcvars_paths = [
+            r'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build',
+        ]
+        for vcvars_path in vcvars_paths:
+            if os.path.exists(vcvars_path):
+                os.system(f'pip_install.bat "{os.path.join(vcvars_path, vcvars_script)}"')
+                break
+
     else:
         print('CMake build for Linux')
-        os.system('/bin/bash cmake_build.sh')
+        os.system('/bin/bash pip_install.sh')
 
 
 def _create_symbolic_link():
