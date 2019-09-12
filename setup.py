@@ -2,6 +2,7 @@ from setuptools import setup
 from setuptools.command.install import install
 import sys
 import os
+import shutil
 
 
 def _build_cmake():
@@ -15,8 +16,14 @@ def _create_symbolic_link():
     root_path = os.path.split(__file__)[0]
     src_path = os.path.join(root_path, 'python')
     dst_path = os.path.join(root_path, 'libsvmintel')
-    if not os.path.exists(dst_path):
-        os.symlink(src_path, dst_path)
+    if sys.platform == 'win32':
+        # Symbolic link in Windows 10 would require admin privileges, just copy files across
+        if os.path.exists(dst_path):
+            shutil.rmtree(dst_path)
+        shutil.copytree(src_path, dst_path)
+    else:
+        if not os.path.exists(dst_path):
+            os.symlink(src_path, dst_path)
 
 
 setup(
