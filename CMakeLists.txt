@@ -8,10 +8,26 @@ if(MSVC)
 endif()
 
 
-# Targets
-add_library(svmcore
+# Files
+set(SVMCORE_SOURCES
     svm.h svm.cpp
 )
+
+
+# Targets
+add_library(svmcore
+    ${SVMCORE_SOURCES}
+)
+
+if(MSVC)
+    add_library(libsvm SHARED
+        ${SVMCORE_SOURCES} svm.def
+    )
+else()
+    add_library(svm SHARED
+        ${SVMCORE_SOURCES}
+    )
+endif()
 
 add_executable(svm-predict
     svm-predict.c
