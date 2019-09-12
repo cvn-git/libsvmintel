@@ -1,5 +1,5 @@
 from setuptools import setup
-from setuptools.command.install import install
+from setuptools.command.develop import develop
 import sys
 import os
 import shutil
@@ -11,6 +11,7 @@ def _build_cmake():
     else:
         print('CMake build for Linux')
         os.system('/bin/bash cmake_build.sh')
+
 
 def _create_symbolic_link():
     root_path = os.path.split(__file__)[0]
@@ -26,10 +27,18 @@ def _create_symbolic_link():
             os.symlink(src_path, dst_path)
 
 
-setup(
-    name = 'libsvmintel',
-    version = '0.0.1',
-)
+class DevelopWrapper(develop):
+    def run(self):
+        # Run the standard PyPi copy
+        develop.run(self)
 
-_build_cmake()
-_create_symbolic_link()
+        # Custom install
+        _build_cmake()
+        _create_symbolic_link()
+
+
+setup(
+    name='libsvmintel',
+    version='0.0.1',
+    cmdclass={'develop': DevelopWrapper},
+)
