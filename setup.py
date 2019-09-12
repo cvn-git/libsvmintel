@@ -12,17 +12,9 @@ def _build_cmake():
         os.system('/bin/bash cmake_build.sh')
 
 
-class InstallWrapper(install):
-    def run(self):
-        # Run the standard PyPi copy
-        install.run(self)
-
-        # Run CMake build
-        _build_cmake()
-
-
 setup(
     name = 'libsvmintel',
     version = '0.0.1',
-    cmdclass={'install': InstallWrapper},
 )
+
+_build_cmake()
