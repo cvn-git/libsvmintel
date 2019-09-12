@@ -1,3 +1,8 @@
 #/bin/bash
-echo "Running cmake_build.sh from $PWD"
-echo "Running cmake_build.sh from $PWD" > cmake_build_log.txt
+export BIN_DIR="$PWD/bin"
+#echo "BIN_DIR = $BIN_DIR" > cmake_build.log
+rm -rf "$BIN_DIR"
+cmake -H. -B"$BIN_DIR" -DCMAKE_BUILD_TYPE=Release
+cd "$BIN_DIR"
+make
+cd ..
