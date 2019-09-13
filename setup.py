@@ -28,9 +28,9 @@ def _build_cmake():
             if os.path.exists(toolchain[0]):
                 print(f'Building libsvmintel using MSVC toolchain in {toolchain[0]}')
                 if toolchain[1]:
-                    os.system(f'pip_install.bat "{os.path.join(toolchain[0], arch_script)}"')
+                    retval = os.system(f'pip_install.bat "{os.path.join(toolchain[0], arch_script)}"')
                 else:
-                    os.system(f'pip_install.bat "{os.path.join(toolchain[0], all_arch_script)}" {arch_arg}')
+                    retval = os.system(f'pip_install.bat "{os.path.join(toolchain[0], all_arch_script)}" {arch_arg}')
                 found = True
                 break
         if not found:
@@ -38,7 +38,10 @@ def _build_cmake():
 
     else:
         print('CMake build for Linux')
-        os.system('/bin/bash pip_install.sh')
+        retval = os.system('/bin/bash pip_install.sh')
+
+    if retval != 0:
+        raise SystemError('CMake build failed')
 
 
 def _create_symbolic_link():
