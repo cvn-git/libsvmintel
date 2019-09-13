@@ -1,5 +1,7 @@
 # libsvmintel
-LIBSVM fork for Intel SIMD
+LIBSVM fork for Intel SIMD.
+
+See also the original [README](README) of LIBSVM
 
 ## Requirements
 ### Linux environment
