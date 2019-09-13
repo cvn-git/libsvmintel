@@ -1,4 +1,5 @@
 #/bin/bash
+set -e
 export BIN_DIR="$PWD/bin"
 #echo "BIN_DIR = $BIN_DIR" > cmake_build.log
 rm -rf "$BIN_DIR"
