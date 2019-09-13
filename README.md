@@ -1,5 +1,5 @@
 # libsvmintel
-LIBSVM fork for Intel SIMD.
+[LIBSVM](https://github.com/cjlin1/libsvm) fork for Intel SIMD.
 
 See also the original [README](README) of LIBSVM
 
