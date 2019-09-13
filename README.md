@@ -24,7 +24,7 @@ For Python, libsvmintel can be installed directly from GitHub by running the fol
 pip install -e git+https://github.com/cong-van-nguyen/libsvmintel.git@master#egg=libsvmintel
 ```
 
-Uninstall can be done as normal:
+Uninstall can be done as usual:
 ```bash
 pip uninstall libsvmintel
 ```
@@ -34,7 +34,7 @@ pip uninstall libsvmintel
 CMake is used to build libsvmintel binaries.
 
 ### Linux build
-####Build from command line
+#### Build from command line
 ```bash
 cmake -H. -Bbuild_linux -DCMAKE_BUILD_TYPE=Release
 cd build_linux
@@ -62,11 +62,10 @@ Open the terminal "VS2015 x64 Native Tools Command Prompt" (for 64-bit build) an
 cmake -H. -Bbuild_nmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles"
 cd build_nmake
 nmake
-ctest --verbose
 ```
 
 #### Visual Studio build
-Open Windows terminal "Command Prompt" and run the following command to generate a Visual Studio solution:
+Open Windows terminal "Command Prompt" and run the following command to generate a Visual Studio 2015 solution:
 ```dos
 cmake -H. -Bbuild_msvc -G "Visual Studio 14 2015 Win64"
 ```
