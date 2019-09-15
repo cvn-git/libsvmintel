@@ -31,7 +31,7 @@ pip uninstall libsvmintel
 
 ## Development builds
 
-CMake is used to build libsvmintel binaries.
+CMake is used to build libsvmintel binaries. By default (per LIBSVM convention), Linux binaries are placed in the root path, while Windows binaries are placed in ``<ROOT>/windows`` subpath.
 
 ### Linux build
 #### Build from command line
@@ -69,3 +69,11 @@ Open Windows terminal "Command Prompt" and run the following command to generate
 ```dos
 cmake -H. -Bbuild_msvc -G "Visual Studio 14 2015 Win64"
 ```
+
+### Build MEX targets
+To build MEX targets, one can add the option ``-DBUILD_MEX=1`` to any of the above CMake commands. By default (per LIBSVM convention), MEX files are placed in ``<ROOT>/windows`` subpath.
+
+---
+**NOTE**
+On Windows, CMake 3.15.3 does not build MEX files for Matlab 2019a properly. A workaround is patching the script ``C:\Program Files\CMake\share\cmake-3.15\Modules\FindMatlab.cmake`` as instructed in https://github.com/robotology/blockfactory/issues/44
+---

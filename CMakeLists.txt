@@ -26,8 +26,17 @@ if(BUILD_SHARED_LIBRARY)
         )
     endif()
 else()
+    if(MSVC)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/windows)
+    else()
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    endif()
+
     add_library(svmcore
         ${SVMCORE_SOURCES}
+    )
+    target_include_directories(svmcore
+        PUBLIC .
     )
 
     add_executable(svm-predict
@@ -50,4 +59,8 @@ else()
     target_link_libraries(svm-scale
         svmcore
     )
+    
+    if(BUILD_MEX)
+        add_subdirectory(matlab)
+    endif()
 endif()
