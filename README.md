@@ -21,7 +21,7 @@ sudo apt-get install build-essential cmake git
 
 For Python, libsvmintel can be installed directly from GitHub by running the following command from your virtual environment:
 ```bash
-pip install -e git+https://github.com/cong-van-nguyen/libsvmintel.git@master#egg=libsvmintel
+pip install -e git+https://github.com/cvn-git/libsvmintel.git@master#egg=libsvmintel
 ```
 
 Uninstall can be done as usual:
