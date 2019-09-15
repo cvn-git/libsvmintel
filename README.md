@@ -76,4 +76,5 @@ To build MEX targets, one can add the option ``-DBUILD_MEX=1`` to any of the abo
 ---
 **NOTE**
 On Windows, CMake 3.15.3 does not build MEX files for Matlab 2019a properly. A workaround is patching the script ``C:\Program Files\CMake\share\cmake-3.15\Modules\FindMatlab.cmake`` as instructed in https://github.com/robotology/blockfactory/issues/44
+
 ---
