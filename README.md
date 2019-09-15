@@ -19,7 +19,7 @@ sudo apt-get install build-essential cmake git
 
 ## Installing libsvmintel for Python
 
-For Python, libsvmintel can be installed directly from GitHub by running the following command from your virtual environment:
+For Python, ``libsvmintel`` can be installed directly from GitHub by running the following command from your virtual environment:
 ```bash
 pip install -e git+https://github.com/cvn-git/libsvmintel.git@master#egg=libsvmintel
 ```
@@ -31,7 +31,7 @@ pip uninstall libsvmintel
 
 ## Development builds
 
-CMake is used to build libsvmintel binaries. By default (per LIBSVM convention), Linux binaries are placed in the root path, while Windows binaries are placed in ``<ROOT>/windows`` subpath.
+CMake is used to build ``libsvmintel`` binaries. By default (per LIBSVM convention), Linux binaries are placed in the root path, while Windows binaries are placed in ``<ROOT>/windows`` subpath.
 
 ### Linux build
 #### Build from command line
