@@ -63,4 +63,8 @@ else()
     if(BUILD_MEX)
         add_subdirectory(matlab)
     endif()
+    
+    if(BUILD_TESTS)
+        add_subdirectory(tests)
+    endif()
 endif()
