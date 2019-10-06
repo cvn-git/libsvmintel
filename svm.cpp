@@ -8,9 +8,14 @@
 #include <limits.h>
 #include <locale.h>
 #include "svm.h"
+#include "svm_intel.h"
+
 int libsvm_version = LIBSVM_VERSION;
+#ifndef USE_SVM_INTEL
 typedef float Qfloat;
 typedef signed char schar;
+#endif
+
 #ifndef min
 template <class T> static inline T min(T x,T y) { return (x<y)?x:y; }
 #endif
@@ -58,6 +63,7 @@ static void info(const char *fmt,...)
 static void info(const char *fmt,...) {}
 #endif
 
+#ifndef USE_SVM_INTEL
 //
 // Kernel Cache
 //
@@ -371,6 +377,8 @@ double Kernel::k_function(const svm_node *x, const svm_node *y,
 			return 0;  // Unreachable
 	}
 }
+#endif  // ifndef USE_SVM_INTEL
+
 
 // An SMO algorithm in Fan et al., JMLR 6(2005), p. 1889--1918
 // Solves:
@@ -1260,6 +1268,7 @@ double Solver_NU::calculate_rho()
 	return (r1-r2)/2;
 }
 
+#ifndef USE_SVM_INTEL
 //
 // Q matrices for various formulations
 //
@@ -1433,6 +1442,8 @@ private:
 	Qfloat *buffer[2];
 	double *QD;
 };
+#endif  // ifndef USE_SVM_INTEL
+
 
 //
 // construct and solve various formulations
