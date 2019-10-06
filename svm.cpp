@@ -296,6 +296,7 @@ Kernel::~Kernel()
 	delete[] x;
 	delete[] x_square;
 }
+#endif  // ifndef USE_SVM_INTEL
 
 double Kernel::dot(const svm_node *px, const svm_node *py)
 {
@@ -377,7 +378,6 @@ double Kernel::k_function(const svm_node *x, const svm_node *y,
 			return 0;  // Unreachable
 	}
 }
-#endif  // ifndef USE_SVM_INTEL
 
 
 // An SMO algorithm in Fan et al., JMLR 6(2005), p. 1889--1918

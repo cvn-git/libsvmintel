@@ -12,6 +12,7 @@ endif()
 set(SVMCORE_SOURCES
     svm.h       svm.cpp
     svm_intel.h svm_intel.cpp
+    svm_intel_math.h
 )
 
 
