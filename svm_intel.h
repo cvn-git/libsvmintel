@@ -24,8 +24,16 @@ public:
     // (p >= len if nothing needs to be filled)
     int get_data(int index, Qfloat **data, int len);
     void swap_index(int i, int j);
+
 private:
+    struct Entry
+    {
+        Qfloat *data;
+        int len;
+    };
+
     std::vector<Qfloat> buffer_;
+    std::vector<Entry> entries_;
     size_t stride_;
     size_t l_;
 };

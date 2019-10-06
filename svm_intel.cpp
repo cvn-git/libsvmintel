@@ -23,14 +23,24 @@ Cache::Cache(int l, size_t size) : l_(l)
         SVM_ERROR("Not enough cache memory");
 
     buffer_.resize(l * stride_);
+    entries_.resize(l);
+    for (int k = 0; k < l; k++)
+    {
+        auto &entry = entries_[k];
+        entry.data = &buffer_[k * stride_];
+        entry.len = 0;
+    }
 }
 
 int Cache::get_data(int index, Qfloat **data, int len)
 {
     if ((index < 0) || (index >= l_))
         SVM_ERROR("Invalid index");
-    *data = &buffer_[index * stride_];
-    return 0;
+    auto &entry = entries_[index];
+    *data = entry.data;
+    auto prev_len = entry.len;
+    entry.len = std::max(entry.len, len);
+    return prev_len;
 }
 
 Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
@@ -54,7 +64,7 @@ Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
             ++node;
         }
     }
-    std::cout << num_features_ << " feature(s)\n";
+    //std::cout << num_features_ << " feature(s)\n";
 
     // Allocate x in dense format
     x_stride_ = compute_aligned_stride(l, sizeof(Dfloat));
