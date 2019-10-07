@@ -121,9 +121,11 @@ Qfloat* Kernel::get_Q(int column, int len) const
         case RBF:
         {
             compute_dot(out_ptr, x_ptr, stride, xi_ptr, stride, num_features_, num_points);
-            Dfloat xi2 = x2_[column];
-            for (int k = 0; k < num_points; k++)
-                out_ptr[k] = std::exp(-gamma * (x2_[k + pos] + xi2 - 2 * out_ptr[k]));
+            ippsMulC_I(Dfloat(-2), out_ptr, num_points);
+            ippsAdd_I(&x2_[pos], out_ptr, num_points);
+            ippsAddC_I(x2_[column], out_ptr, num_points);
+            ippsMulC_I(-gamma, out_ptr, num_points);
+            ippsExp_I(out_ptr, num_points);
             break;
         }
         case SIGMOID:
