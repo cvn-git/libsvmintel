@@ -7,12 +7,12 @@ if(MSVC)
     add_definitions(-wd4996 -wd4005)
 endif()
 
+add_subdirectory(intel)
+
 
 # Files
 set(SVMCORE_SOURCES
     svm.h       svm.cpp
-    svm_intel.h svm_intel.cpp
-    svm_intel_math.h
 )
 
 
@@ -22,9 +22,15 @@ if(BUILD_SHARED_LIBRARY)
         add_library(libsvm SHARED
             ${SVMCORE_SOURCES} svm.def
         )
+        target_link_libraries(libsvm
+            PUBLIC svmintel
+        )
     else()
         add_library(svm SHARED
             ${SVMCORE_SOURCES}
+        )
+        target_link_libraries(svm
+            PUBLIC svmintel
         )
     endif()
 else()
@@ -39,6 +45,9 @@ else()
     )
     target_include_directories(svmcore
         PUBLIC .
+    )
+    target_link_libraries(svmcore
+        PUBLIC svmintel
     )
 
     add_executable(svm-predict
