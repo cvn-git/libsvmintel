@@ -38,7 +38,8 @@ void main(void)
     param.kernel_type = RBF;
     param.degree = 3;
     param.gamma = 1.0 / P;
-    param.coef0 = 0;
+    param.coef0 = 0.5;
+    param.degree = 3;
     param.nu = 0.5;
     param.cache_size = 4000;
     param.C = 1;

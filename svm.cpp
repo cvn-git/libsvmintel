@@ -557,9 +557,12 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 				int j;
 				for(j=0;j<l;j++)
 					G[j] += alpha_i*Q_i[j];
-				if(is_upper_bound(i))
-					for(j=0;j<l;j++)
-						G_bar[j] += get_C(i) * Q_i[j];
+                if (is_upper_bound(i))
+                {
+                    auto Ci = get_C(i);
+                    for (j = 0; j < l; j++)
+                        G_bar[j] += Ci * Q_i[j];
+                }
 			}
 	}
 

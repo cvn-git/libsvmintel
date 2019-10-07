@@ -116,7 +116,10 @@ Qfloat* Kernel::get_Q(int column, int len) const
             compute_dot(out_ptr, x_ptr, stride, xi_ptr, stride, num_features_, num_points);
             break;
         case POLY:
-            SVM_ERROR("Not implemented");
+            compute_dot(out_ptr, x_ptr, stride, xi_ptr, stride, num_features_, num_points);
+            ippsMulC_I(gamma, out_ptr, num_points);
+            ippsAddC_I(coef0, out_ptr, num_points);
+            compute_poly_powx<Dfloat, Qfloat>(out_ptr, degree, num_points);
             break;
         case RBF:
         {
@@ -129,7 +132,10 @@ Qfloat* Kernel::get_Q(int column, int len) const
             break;
         }
         case SIGMOID:
-            SVM_ERROR("Not implemented");
+            compute_dot(out_ptr, x_ptr, stride, xi_ptr, stride, num_features_, num_points);
+            ippsMulC_I(gamma, out_ptr, num_points);
+            ippsAddC_I(coef0, out_ptr, num_points);
+            compute_sigmoid_tanh<Dfloat, Qfloat>(out_ptr, num_points);
             break;
         default:
             SVM_ERROR("Invalid kernel type");
