@@ -46,8 +46,8 @@ int Cache::get_data(int index, Qfloat **data, int len)
 Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
     : kernel_type(param.kernel_type)
     , degree(param.degree)
-    , gamma(param.gamma)
-    , coef0(param.coef0)
+    , gamma(static_cast<Dfloat>(param.gamma))
+    , coef0(static_cast<Dfloat>(param.coef0))
     , l_(l)
     , same_type_(std::is_same<Dfloat, Qfloat>::value)
     , cache(new Cache(l, size_t(std::round(param.cache_size * 1e6))))
@@ -119,7 +119,7 @@ Qfloat* Kernel::get_Q(int column, int len) const
             compute_dot(out_ptr, x_ptr, stride, xi_ptr, stride, num_features_, num_points);
             ippsMulC_I(gamma, out_ptr, num_points);
             ippsAddC_I(coef0, out_ptr, num_points);
-            compute_poly_powx<Dfloat, Qfloat>(out_ptr, degree, num_points);
+            compute_poly_powx<Dfloat, Qfloat>(out_ptr, static_cast<Dfloat>(degree), num_points);
             break;
         case RBF:
         {
