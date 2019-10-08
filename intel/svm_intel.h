@@ -18,6 +18,7 @@ class Cache
 {
 public:
     Cache(int l, size_t size);
+    ~Cache();
 
     // request data [0,len)
     // return some position p where [p,len) need to be filled
@@ -26,16 +27,34 @@ public:
     void swap_index(int i, int j);
 
 private:
-    struct Entry
+    struct Entry;
+    struct CacheLine
+    {
+        CacheLine *prev;
+        CacheLine *next;
+        Entry *entry;
+        Qfloat *data;
+    };
+    union Data
     {
         Qfloat *data;
+        CacheLine *cache;
+    };
+    struct Entry
+    {
+        Data data;
         int len;
     };
 
     std::vector<Qfloat> buffer_;
     std::vector<Entry> entries_;
+    std::vector<CacheLine> cache_lines_;
+    CacheLine *first_line_{ nullptr };
+    CacheLine *last_line_{ nullptr };
     size_t stride_;
     size_t l_;
+    size_t num_hits_{ 0 };
+    size_t num_misses_{ 0 };
 };
 
 

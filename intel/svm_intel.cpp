@@ -18,18 +18,63 @@ static size_t compute_aligned_stride(size_t len, size_t ele_size)
 
 Cache::Cache(int l, size_t size) : l_(l)
 {
+    entries_.resize(l);
+
     stride_ = compute_aligned_stride(l, sizeof(Qfloat));
     if ((stride_ * l * sizeof(Qfloat)) > size)
-        SVM_ERROR("Not enough cache memory");
-
-    buffer_.resize(l * stride_);
-    entries_.resize(l);
-    for (int k = 0; k < l; k++)
     {
-        auto &entry = entries_[k];
-        entry.data = &buffer_[k * stride_];
-        entry.len = 0;
+        auto num_lines = static_cast<int>(size / (stride_ * sizeof(Qfloat)));
+        if (num_lines < 2)
+            SVM_ERROR("Not enough caching memory");
+        std::cout << num_lines << " cache lines allocated\n";
+        buffer_.resize(num_lines * stride_);
+        cache_lines_.resize(num_lines);
+        first_line_ = &cache_lines_[0];
+        last_line_ = &cache_lines_[num_lines - 1];
+        for (int k = 0; k < num_lines; k++)
+        {
+            auto &line = cache_lines_[k];
+            line.prev = (k == 0) ? nullptr : &cache_lines_[k - 1];
+            line.next = (k < (num_lines - 1)) ? &cache_lines_[k + 1] : nullptr;
+            line.entry = &entries_[k];
+            line.data = &buffer_[k * stride_];
+
+            auto &entry = entries_[k];
+            entry.data.cache = &line;
+            entry.len = 0;
+        }
+        for (int k = num_lines; k < l; k++)
+        {
+            auto &entry = entries_[k];
+            entry.data.cache = nullptr;
+            entry.len = 0;
+        }
     }
+    else
+    {
+        buffer_.resize(l * stride_);
+        for (int k = 0; k < l; k++)
+        {
+            auto &entry = entries_[k];
+            entry.data.data = &buffer_[k * stride_];
+            entry.len = 0;
+        }
+    }
+}
+
+Cache::~Cache()
+{
+    //std::cout << "SVM cache: " << num_hits_ << " hits, " << num_misses_ << " misses\n";
+#if 0
+    int cnt = 0;
+    auto node = first_line_;
+    while (node != nullptr)
+    {
+        cnt++;
+        node = node->next;
+    }
+    std::cout << cnt << " SVM cache lines deallocated\n";
+#endif
 }
 
 int Cache::get_data(int index, Qfloat **data, int len)
@@ -37,9 +82,61 @@ int Cache::get_data(int index, Qfloat **data, int len)
     if ((index < 0) || (index >= l_))
         SVM_ERROR("Invalid index");
     auto &entry = entries_[index];
-    *data = entry.data;
+
+    if (cache_lines_.empty())
+    {
+        *data = entry.data.data;
+    }
+    else
+    {
+        auto &line = entry.data.cache;
+        if (line == nullptr)
+        {
+            // No data cached
+            entry.len = 0;
+
+            // Replace the oldest line
+            auto old_line = first_line_;
+            first_line_ = old_line->next;
+            first_line_->prev = nullptr;
+            old_line->entry->data.cache = nullptr;
+            line = old_line;
+            line->entry = &entry;
+        }
+        else
+        {
+            // Remove this line from the chain
+            auto prev_line = line->prev;
+            auto next_line = line->next;
+            if (prev_line == nullptr)
+                first_line_ = next_line;
+            else
+                prev_line->next = next_line;
+            if (next_line == nullptr)
+                last_line_ = prev_line;
+            else
+                next_line->prev = prev_line;
+        }
+
+        *data = line->data;
+
+        // Push this line to the end
+        line->next = nullptr;
+        line->prev = last_line_;
+        last_line_->next = line;
+        last_line_ = line;
+    }
+
     auto prev_len = entry.len;
-    entry.len = std::max(entry.len, len);
+    if (prev_len < len)
+    {
+        entry.len = len;
+        ++num_misses_;
+    }
+    else
+    {
+        ++num_hits_;
+    }
     return prev_len;
 }
 
@@ -152,7 +249,7 @@ const double* Kernel::get_QD() const
 
 void Kernel::swap_index(int i, int j) const
 {
-    SVM_ERROR("Not implemented");
+    SVM_ERROR("Not implemented yet. Please disable shrinking feature.");
 }
 
 SVC_Q::SVC_Q(const svm_problem& prob, const svm_parameter& param, const schar *y_)
