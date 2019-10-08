@@ -57,9 +57,13 @@ public:
                              const svm_node *y,
                              const svm_parameter& param);
 
-    virtual Qfloat *get_Q(int column, int len) const override;
+    virtual Qfloat *get_Q(int column, int len) const override = 0;
     virtual const double *get_QD() const override;
     virtual void swap_index(int i, int j) const override;
+
+protected:
+    void compute_kernel(Qfloat *data, int column, int pos, int len) const;
+    std::unique_ptr<Cache> cache;
 
 private:
     static double dot(const svm_node *px, const svm_node *py);
@@ -72,7 +76,6 @@ private:
     const int l_;
     const bool same_type_;
 
-    std::unique_ptr<Cache> cache;
     std::vector<Dfloat> x_buffer_;
     size_t x_stride_;
     int num_features_;
@@ -86,6 +89,13 @@ class SVC_Q : public Kernel
 {
 public:
     SVC_Q(const svm_problem& prob, const svm_parameter& param, const schar *y_);
+    Qfloat *get_Q(int column, int len) const override;
+
+private:
+    const int l_;
+    std::vector<Qfloat> y_plus_;
+    std::vector<Qfloat> y_minus_;
+    std::unique_ptr<std::vector<Qfloat> > scratch_;
 };
 
 
@@ -93,6 +103,7 @@ class ONE_CLASS_Q : public Kernel
 {
 public:
     ONE_CLASS_Q(const svm_problem& prob, const svm_parameter& param);
+    Qfloat *get_Q(int column, int len) const override;
 };
 
 
@@ -100,6 +111,14 @@ class SVR_Q : public Kernel
 {
 public:
     SVR_Q(const svm_problem& prob, const svm_parameter& param);
+    Qfloat *get_Q(int column, int len) const override;
+    const double *get_QD() const override;
+
+public:
+    const int l_;
+    std::vector<double> QD_;
+    std::unique_ptr<std::vector<Qfloat> > buffers_[2];
+    mutable int buffer_index_;
 };
 
 

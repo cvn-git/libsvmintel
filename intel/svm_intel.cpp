@@ -44,13 +44,13 @@ int Cache::get_data(int index, Qfloat **data, int len)
 }
 
 Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
-    : kernel_type(param.kernel_type)
+    : cache(new Cache(l, size_t(std::round(param.cache_size * 1e6))))
+    , kernel_type(param.kernel_type)
     , degree(param.degree)
     , gamma(static_cast<Dfloat>(param.gamma))
     , coef0(static_cast<Dfloat>(param.coef0))
     , l_(l)
     , same_type_(std::is_same<Dfloat, Qfloat>::value)
-    , cache(new Cache(l, size_t(std::round(param.cache_size * 1e6))))
 {
     // Count features
     num_features_ = 0;
@@ -99,10 +99,8 @@ Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
         scratch_.reset(new std::vector<Dfloat>(l));
 }
 
-Qfloat* Kernel::get_Q(int column, int len) const
+void Kernel::compute_kernel(Qfloat *data, int column, int pos, int len) const
 {
-    Qfloat *data = nullptr;
-    auto pos = cache->get_data(column, &data, len);
     auto num_points = len - pos;
     if (num_points > 0)
     {
@@ -143,13 +141,8 @@ Qfloat* Kernel::get_Q(int column, int len) const
         }
 
         if (!same_type_)
-        {
-            for (int k = 0; k < num_points; k++)
-                data[k + pos] = static_cast<Qfloat>(out_ptr[k]);
-        }
+            ippsCopy(&out_ptr[pos], &data[pos], num_points);
     }
-
-    return data;
 }
 
 const double* Kernel::get_QD() const
@@ -164,8 +157,33 @@ void Kernel::swap_index(int i, int j) const
 
 SVC_Q::SVC_Q(const svm_problem& prob, const svm_parameter& param, const schar *y_)
     : Kernel(prob.l, prob.x, param)
+    , l_(prob.l)
+    , y_plus_(prob.l)
+    , y_minus_(prob.l)
+    , scratch_(new std::vector<Qfloat>(prob.l))
 {
-    SVM_ERROR("Not implemented");
+    for (int k = 0; k < l_; k++)
+    {
+        auto val = static_cast<Qfloat>(y_[k]);
+        y_plus_[k] = val;
+        y_minus_[k] = -val;
+    }
+}
+
+Qfloat* SVC_Q::get_Q(int column, int len) const
+{
+    Qfloat *data = nullptr;
+    auto pos = cache->get_data(column, &data, len);
+    auto num_points = len - pos;
+    if (num_points > 0)
+    {
+        compute_kernel(data, column, pos, len);
+        if (y_plus_[column] < 0)
+            ippsMul_I(&y_minus_[pos], &data[pos], num_points);
+        else
+            ippsMul_I(&y_plus_[pos], &data[pos], num_points);
+    }
+    return data;
 }
 
 ONE_CLASS_Q::ONE_CLASS_Q(const svm_problem& prob, const svm_parameter& param)
@@ -173,10 +191,47 @@ ONE_CLASS_Q::ONE_CLASS_Q(const svm_problem& prob, const svm_parameter& param)
 {
 }
 
+Qfloat* ONE_CLASS_Q::get_Q(int column, int len) const
+{
+    Qfloat *data = nullptr;
+    auto pos = cache->get_data(column, &data, len);
+    compute_kernel(data, column, pos, len);
+    return data;
+}
+
 SVR_Q::SVR_Q(const svm_problem& prob, const svm_parameter& param)
     : Kernel(prob.l, prob.x, param)
+    , l_(prob.l)
+    , QD_(prob.l * 2)
+    , buffer_index_(0)
 {
-    SVM_ERROR("Not implemented");
+    for (int k = 0; k < 2; k++)
+        buffers_[k].reset(new std::vector<Qfloat>(l_ * 2));
+
+    auto qd = Kernel::get_QD();
+    ippsCopy(qd, &QD_[0], prob.l);
+    ippsCopy(qd, &QD_[prob.l], prob.l);
+}
+
+Qfloat* SVR_Q::get_Q(int column, int) const
+{
+    Qfloat *data = nullptr;
+    int kernel_column = column % l_;
+    auto pos = cache->get_data(kernel_column, &data, l_);
+    compute_kernel(data, kernel_column, pos, l_);
+
+    auto output = buffers_[buffer_index_]->data();
+    buffer_index_ = 1 - buffer_index_;
+    Qfloat sign = (column < l_) ? Qfloat(1) : Qfloat(-1);
+    ippsMulC(data, sign, output, l_);
+    ippsMulC(data, -sign, output + l_, l_);
+
+    return output;
+}
+
+const double* SVR_Q::get_QD() const
+{
+    return &QD_[0];
 }
 
 #endif  // USE_SVM_INTEL

@@ -44,6 +44,11 @@ static inline IppStatus ippsAddProductC(const Ipp64f* pSrc, const Ipp64f val, Ip
     return ippsAddProductC_64f(pSrc, val, pSrcDst, len);
 }
 
+static inline IppStatus ippsCopy(const Ipp32f* pSrc, Ipp32f* pDst, int len)
+{
+    return ippsCopy_32f(pSrc, pDst, len);
+}
+
 static inline IppStatus ippsCopy(const Ipp64f* pSrc, Ipp64f* pDst, int len)
 {
     return ippsCopy_64f(pSrc, pDst, len);
@@ -54,6 +59,11 @@ static inline IppStatus ippsCopy(const Ipp32f* pSrc, Ipp64f* pDst, int len)
     return ippsConvert_32f64f(pSrc, pDst, len);
 }
 
+static inline IppStatus ippsCopy(const Ipp64f* pSrc, Ipp32f* pDst, int len)
+{
+    return ippsConvert_64f32f(pSrc, pDst, len);
+}
+
 static inline IppStatus ippsExp_I(Ipp32f* pSrcDst, int len)
 {
     return ippsExp_32f_I(pSrcDst, len);
@@ -62,6 +72,26 @@ static inline IppStatus ippsExp_I(Ipp32f* pSrcDst, int len)
 static inline IppStatus ippsExp_I(Ipp64f* pSrcDst, int len)
 {
     return ippsExp_64f_I(pSrcDst, len);
+}
+
+static inline IppStatus ippsMul(const Ipp32f* pSrc1, const Ipp32f* pSrc2, Ipp32f* pDst, int len)
+{
+    return ippsMul_32f(pSrc1, pSrc2, pDst, len);
+}
+
+static inline IppStatus ippsMul(const Ipp64f* pSrc1, const Ipp64f* pSrc2, Ipp64f* pDst, int len)
+{
+    return ippsMul_64f(pSrc1, pSrc2, pDst, len);
+}
+
+static inline IppStatus ippsMul_I(const Ipp32f* pSrc, Ipp32f* pSrcDst, int len)
+{
+    return ippsMul_32f_I(pSrc, pSrcDst, len);
+}
+
+static inline IppStatus ippsMul_I(const Ipp64f* pSrc, Ipp64f* pSrcDst, int len)
+{
+    return ippsMul_64f_I(pSrc, pSrcDst, len);
 }
 
 static inline IppStatus ippsMulC(const Ipp32f* pSrc, Ipp32f val, Ipp32f* pDst, int len)
