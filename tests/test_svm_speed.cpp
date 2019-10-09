@@ -123,7 +123,7 @@ void test_svr()
     svm_free_and_destroy_model(&model);
 }
 
-void main()
+int main()
 {
     test_one_class_svm();
 }

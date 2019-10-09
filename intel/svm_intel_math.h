@@ -145,7 +145,7 @@ static inline IppStatus ippsZero(Ipp64f* pDst, int len)
 }
 
 template<typename T>
-static inline void compute_dot(T *output, const T *x, int x_stride, const T *xi, int xi_stride, int num_features, int len)
+inline void compute_dot(T *output, const T *x, int x_stride, const T *xi, int xi_stride, int num_features, int len)
 {
     ippsMulC(x, *xi, output, len);
     for (int feature = 1; feature < num_features; feature++)
@@ -157,25 +157,25 @@ static inline void compute_dot(T *output, const T *x, int x_stride, const T *xi,
 }
 
 template<class TD, class TQ>
-static inline void compute_poly_powx(TD *data, TD degree, int len)
+inline void compute_poly_powx(TD *data, TD degree, int len)
 {
     ippsPowx(data, degree, data, len);
 }
 
 template<>
-static inline void compute_poly_powx<double, float>(double *data, double degree, int len)
+inline void compute_poly_powx<double, float>(double *data, double degree, int len)
 {
     ippsPowx_64f_A26(data, degree, data, len);
 }
 
 template<class TD, class TQ>
-static inline void compute_sigmoid_tanh(TD *data, int len)
+inline void compute_sigmoid_tanh(TD *data, int len)
 {
     ippsTanh(data, data, len);
 }
 
 template<>
-static inline void compute_sigmoid_tanh<double, float>(double *data, int len)
+inline void compute_sigmoid_tanh<double, float>(double *data, int len)
 {
     ippsTanh_64f_A26(data, data, len);
 }

@@ -4,6 +4,7 @@
 
 #include "svm_intel_math.h"
 
+#include <cmath>
 #include <algorithm>
 #include <iostream>
 
