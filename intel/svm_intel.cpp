@@ -26,8 +26,8 @@ Cache::Cache(int l, size_t size) : l_(l)
         auto num_lines = static_cast<int>(size / (stride_ * sizeof(Qfloat)));
         if (num_lines < 2)
             SVM_ERROR("Not enough caching memory");
-        std::cout << num_lines << " cache lines allocated\n";
-        buffer_.resize(num_lines * stride_);
+        //std::cout << num_lines << " cache lines allocated\n";
+        buffer_ = Buffer<Qfloat>(num_lines * stride_);
         cache_lines_.resize(num_lines);
         first_line_ = &cache_lines_[0];
         last_line_ = &cache_lines_[num_lines - 1];
@@ -52,7 +52,7 @@ Cache::Cache(int l, size_t size) : l_(l)
     }
     else
     {
-        buffer_.resize(l * stride_);
+        buffer_ = Buffer<Qfloat>(l * stride_);
         for (int k = 0; k < l; k++)
         {
             auto &entry = entries_[k];
@@ -165,7 +165,8 @@ Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
 
     // Allocate x in dense format
     x_stride_ = compute_aligned_stride(l, sizeof(Dfloat));
-    x_buffer_.assign(x_stride_ * num_features_, Dfloat(0));
+    x_buffer_ = Buffer<Dfloat>(x_stride_ * num_features_);
+    ippsZero(x_buffer_, static_cast<int>(x_buffer_.size()));
 
     // Populate x values in dense format
     for (int point = 0; point < l; point++)
@@ -179,21 +180,21 @@ Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
     }
 
     // Precompute kernel matrix's diagonal
-    diag_.resize(l);
+    diag_ = Buffer<Dfloat>(l);
     for (int point = 0; point < l; point++)
         diag_[point] = k_function(x[point], x[point], param);
 
     // Precompute x^2
     if (kernel_type == RBF)
     {
-        x2_.resize(l);
+        x2_ = Buffer<Dfloat>(l);
         for (int k = 0; k < l; k++)
             x2_[k] = static_cast<Dfloat>(dot(x[k], x[k]));
     }
 
     // Scratch memory for kernel computation
     if (!same_type_)
-        scratch_.reset(new std::vector<Dfloat>(l));
+        scratch_.reset(new Buffer<Dfloat>(l));
 }
 
 void Kernel::compute_kernel(Qfloat *data, int column, int pos, int len) const
@@ -201,7 +202,7 @@ void Kernel::compute_kernel(Qfloat *data, int column, int pos, int len) const
     auto num_points = len - pos;
     if (num_points > 0)
     {
-        Dfloat *out_ptr = (same_type_) ? reinterpret_cast<Dfloat*>(data + pos) : scratch_->data();
+        Dfloat *out_ptr = (same_type_) ? reinterpret_cast<Dfloat*>(data + pos) : *scratch_;
         auto x_ptr = &x_buffer_[pos];
         auto xi_ptr = &x_buffer_[column];
         auto stride = int(x_stride_);
@@ -257,7 +258,7 @@ SVC_Q::SVC_Q(const svm_problem& prob, const svm_parameter& param, const schar *y
     , l_(prob.l)
     , y_plus_(prob.l)
     , y_minus_(prob.l)
-    , scratch_(new std::vector<Qfloat>(prob.l))
+    , scratch_(new Buffer<Qfloat>(prob.l))
 {
     for (int k = 0; k < l_; k++)
     {
@@ -303,7 +304,7 @@ SVR_Q::SVR_Q(const svm_problem& prob, const svm_parameter& param)
     , buffer_index_(0)
 {
     for (int k = 0; k < 2; k++)
-        buffers_[k].reset(new std::vector<Qfloat>(l_ * 2));
+        buffers_[k].reset(new Buffer<Qfloat>(l_ * 2));
 
     auto qd = Kernel::get_QD();
     ippsCopy(qd, &QD_[0], prob.l);
@@ -317,7 +318,7 @@ Qfloat* SVR_Q::get_Q(int column, int) const
     auto pos = cache->get_data(kernel_column, &data, l_);
     compute_kernel(data, kernel_column, pos, l_);
 
-    auto output = buffers_[buffer_index_]->data();
+    Qfloat *output = *buffers_[buffer_index_];
     buffer_index_ = 1 - buffer_index_;
     Qfloat sign = (column < l_) ? Qfloat(1) : Qfloat(-1);
     ippsMulC(data, sign, output, l_);

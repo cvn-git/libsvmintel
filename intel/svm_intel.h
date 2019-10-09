@@ -6,6 +6,7 @@
 #ifdef USE_SVM_INTEL
 
 #include "svm.h"
+#include <ipps.h>
 
 #include <vector>
 #include <memory>
@@ -13,6 +14,47 @@
 typedef float Qfloat;
 typedef double Dfloat;
 typedef signed char schar;
+
+template<class T>
+class Buffer
+{
+public:
+    Buffer() {}
+    Buffer(size_t len)
+        : len_(len)
+    {
+        data_ = reinterpret_cast<T*>(ippsMalloc_8u_L(len * sizeof(T)));
+    }
+    Buffer(Buffer<T> &&other)
+        : data_(other.data_)
+        , len_(other.len_)
+    {
+        other.data_ = nullptr;
+        other.len_ = 0;
+    }
+
+    ~Buffer()
+    {
+        if (data_ != nullptr)
+            ippsFree(data_);
+    }
+
+    Buffer& operator=(Buffer<T> &&other)
+    {
+        std::swap(data_, other.data_);
+        std::swap(len_, other.len_);
+        return *this;
+    }
+
+    operator const T*() const { return data_; }
+    operator T*() { return data_; }
+
+    size_t size() const { return len_; }
+
+private:
+    T *data_{ nullptr };
+    size_t len_{ 0 };
+};
 
 class Cache
 {
@@ -46,7 +88,7 @@ private:
         int len;
     };
 
-    std::vector<Qfloat> buffer_;
+    Buffer<Qfloat> buffer_;
     std::vector<Entry> entries_;
     std::vector<CacheLine> cache_lines_;
     CacheLine *first_line_{ nullptr };
@@ -95,12 +137,12 @@ private:
     const int l_;
     const bool same_type_;
 
-    std::vector<Dfloat> x_buffer_;
+    Buffer<Dfloat> x_buffer_;
     size_t x_stride_;
     int num_features_;
-    std::vector<double> diag_;
-    std::vector<Dfloat> x2_;
-    std::unique_ptr<std::vector<Dfloat> > scratch_;
+    Buffer<double> diag_;
+    Buffer<Dfloat> x2_;
+    std::unique_ptr<Buffer<Dfloat> > scratch_;
 };
 
 
@@ -112,9 +154,9 @@ public:
 
 private:
     const int l_;
-    std::vector<Qfloat> y_plus_;
-    std::vector<Qfloat> y_minus_;
-    std::unique_ptr<std::vector<Qfloat> > scratch_;
+    Buffer<Qfloat> y_plus_;
+    Buffer<Qfloat> y_minus_;
+    std::unique_ptr<Buffer<Qfloat> > scratch_;
 };
 
 
@@ -135,8 +177,8 @@ public:
 
 public:
     const int l_;
-    std::vector<double> QD_;
-    std::unique_ptr<std::vector<Qfloat> > buffers_[2];
+    Buffer<double> QD_;
+    std::unique_ptr<Buffer<Qfloat> > buffers_[2];
     mutable int buffer_index_;
 };
 

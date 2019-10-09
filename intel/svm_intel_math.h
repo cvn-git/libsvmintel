@@ -134,6 +134,15 @@ static inline IppStatus ippsTanh(const Ipp64f* pSrc, Ipp64f* pDst, Ipp32s len)
     return ippsTanh_64f_A53(pSrc, pDst, len);
 }
 
+static inline IppStatus ippsZero(Ipp32f* pDst, int len)
+{
+    return ippsZero_32f(pDst, len);
+}
+
+static inline IppStatus ippsZero(Ipp64f* pDst, int len)
+{
+    return ippsZero_64f(pDst, len);
+}
 
 template<typename T>
 static inline void compute_dot(T *output, const T *x, int x_stride, const T *xi, int xi_stride, int num_features, int len)
