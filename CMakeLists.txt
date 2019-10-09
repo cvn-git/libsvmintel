@@ -5,6 +5,8 @@ set (CMAKE_CXX_STANDARD 11)
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_definitions(-wd4996 -wd4005)
+else()
+    add_definitions(-fPIC)
 endif()
 
 add_subdirectory(intel)
