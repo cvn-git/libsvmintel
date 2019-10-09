@@ -3,6 +3,15 @@
 
 See also the original [README](README) of LIBSVM
 
+| SVM type  | LIBSVM         | libsvmintel    | libsvmintel    |
+|:---------:|:--------------:|:--------------:|:--------------:|
+|           |double-precision|double-precision|single-precision|
+|C-SVC      |   23.31 sec    |    5.47 sec    |    2.69 sec    |
+|ʋ-SVC      |   756.6 sec    |   165.9 sec    |   71.96 sec    |
+|ɛ-SVR      |   23.59 sec    |   10.52 sec    |    7.80 sec    |
+|ʋ-SVR      |   28.82 sec    |   11.07 sec    |    7.22 sec    |
+|1-class SVM|   17.44 sec    |    4.85 sec    |    2.09 sec    |
+
 ## Requirements
 ### Linux environment
 For Ubuntu 18.04:
@@ -10,11 +19,14 @@ For Ubuntu 18.04:
 sudo apt-get install build-essential cmake git
 ```
 
+Install Intel's IPP library as instructed at https://software.intel.com/en-us/articles/installing-intel-free-libs-and-python-apt-repo 
+
 ### Windows environment
 
 * Visual C++ compiler, version 2015 or later
 * CMake from https://cmake.org/download
 * Git from https://git-scm.com/downloads
+* Intel's IPP libary from https://software.seek.intel.com/performance-libraries
 
 
 ## Installing libsvmintel for Python

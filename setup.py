@@ -70,6 +70,6 @@ class DevelopWrapper(develop):
 
 setup(
     name='libsvmintel',
-    version='0.0.1',
+    version='1.0.0',
     cmdclass={'develop': DevelopWrapper},
 )

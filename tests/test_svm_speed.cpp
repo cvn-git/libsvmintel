@@ -50,7 +50,7 @@ svm_parameter default_parameter(int P)
     param.coef0 = 0.5;
     param.degree = 3;
     param.nu = 0.5;
-    param.cache_size = 4000;
+    param.cache_size = 100;
     param.C = 1.0;
     param.eps = 1e-3;
     param.p = 0.1;
@@ -65,7 +65,7 @@ svm_parameter default_parameter(int P)
 void test_svc()
 {
     int N = 15000;
-    int P = 3;
+    int P = 50;
     auto problem = create_problem(N, P);
 
     std::mt19937 gen(1234);
@@ -74,7 +74,7 @@ void test_svc()
         problem.y[n] = dis(gen);
 
     auto param = default_parameter(P);
-    param.svm_type = NU_SVC;
+    param.svm_type = C_SVC;
 
     auto tic = std::chrono::system_clock::now();
     auto model = svm_train(&problem.prob, &param);
@@ -87,7 +87,7 @@ void test_svc()
 void test_one_class_svm()
 {
     int N = 15000;
-    int P = 3;
+    int P = 50;
     auto problem = create_problem(N, P);
 
     auto param = default_parameter(P);
@@ -104,7 +104,7 @@ void test_one_class_svm()
 void test_svr()
 {
     int N = 15000;
-    int P = 3;
+    int P = 50;
     auto problem = create_problem(N, P);
 
     std::mt19937 gen(1234);
@@ -113,7 +113,7 @@ void test_svr()
         problem.y[n] = dis(gen);
 
     auto param = default_parameter(P);
-    param.svm_type = NU_SVR;
+    param.svm_type = EPSILON_SVR;
 
     auto tic = std::chrono::system_clock::now();
     auto model = svm_train(&problem.prob, &param);
@@ -126,4 +126,5 @@ void test_svr()
 int main()
 {
     test_one_class_svm();
+    return 0;
 }

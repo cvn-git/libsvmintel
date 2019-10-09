@@ -181,7 +181,7 @@ Kernel::Kernel(int l, svm_node * const * x, const svm_parameter& param)
     }
 
     // Precompute kernel matrix's diagonal
-    diag_ = Buffer<Dfloat>(l);
+    diag_ = Buffer<double>(l);
     for (int point = 0; point < l; point++)
         diag_[point] = k_function(x[point], x[point], param);
 
