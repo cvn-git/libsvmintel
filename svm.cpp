@@ -11,7 +11,7 @@
 #include "svm_intel.h"
 
 int libsvm_version = LIBSVM_VERSION;
-#ifndef USE_SVM_INTEL
+#if USE_SVM_INTEL == 0
 typedef float Qfloat;
 typedef signed char schar;
 #endif
@@ -63,7 +63,7 @@ static void info(const char *fmt,...)
 static void info(const char *fmt,...) {}
 #endif
 
-#ifndef USE_SVM_INTEL
+#if USE_SVM_INTEL == 0
 //
 // Kernel Cache
 //
@@ -296,7 +296,7 @@ Kernel::~Kernel()
 	delete[] x;
 	delete[] x_square;
 }
-#endif  // ifndef USE_SVM_INTEL
+#endif  // USE_SVM_INTEL
 
 double Kernel::dot(const svm_node *px, const svm_node *py)
 {
@@ -1271,7 +1271,7 @@ double Solver_NU::calculate_rho()
 	return (r1-r2)/2;
 }
 
-#ifndef USE_SVM_INTEL
+#if USE_SVM_INTEL == 0
 //
 // Q matrices for various formulations
 //
@@ -1445,7 +1445,7 @@ private:
 	Qfloat *buffer[2];
 	double *QD;
 };
-#endif  // ifndef USE_SVM_INTEL
+#endif  // USE_SVM_INTEL
 
 
 //

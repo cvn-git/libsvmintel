@@ -1,9 +1,9 @@
 #ifndef SVM_INTEL_H
 #define SVM_INTEL_H
 
-#define USE_SVM_INTEL
+#define USE_SVM_INTEL 1
 
-#ifdef USE_SVM_INTEL
+#if USE_SVM_INTEL != 0
 
 #include "svm.h"
 #include <ipps.h>

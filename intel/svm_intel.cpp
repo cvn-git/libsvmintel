@@ -1,6 +1,6 @@
 #include "svm_intel.h"
 
-#ifdef USE_SVM_INTEL
+#if USE_SVM_INTEL != 0
 
 #include "svm_intel_math.h"
 
