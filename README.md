@@ -1,7 +1,14 @@
 # libsvmintel
-[LIBSVM](https://github.com/cjlin1/libsvm) fork for Intel SIMD.
+[LIBSVM](https://github.com/cjlin1/libsvm) fork optimized for Intel CPUs. See also the original [README](README) of LIBSVM
 
-See also the original [README](README) of LIBSVM
+## About
+In `libsvmintel`, SVM kernel matrix computation is optimized to make use of large memory bandwidth and floating-point SIMD support in modern Intel CPUs:
+* Program interfaces (command-line, Matlab, Python) from LIBSVM are kept unchanged
+* All basic kernel types (linear/polynomial/GRBF/sigmoid) are supported
+* Both sparse and dense feature modes are supported. However, optimization was designed mainly for dense features
+* Shrinking is not supported. It needs to be disabled by the argument `-h 0` 
+
+The following table provides speed-up results from the test harness [test_svm_speed.cpp](tests/test_svm_speed.cpp). Selecting between LIBSVM and `libsvmintel` is done using the compiler switch `USE_SVM_INTEL` in [svm_intel.h](intel/svm_intel.h). Floating-point precision for the kernel function is defined by `Dfloat` type in [svm_intel.h](intel/svm_intel.h)   
 
 | SVM type  | LIBSVM         | libsvmintel    | libsvmintel    |
 |:---------:|:--------------:|:--------------:|:--------------:|
@@ -34,6 +41,11 @@ Install Intel's IPP library as instructed at https://software.intel.com/en-us/ar
 For Python, ``libsvmintel`` can be installed directly from GitHub by running the following command from your virtual environment:
 ```bash
 pip install -e git+https://github.com/cvn-git/libsvmintel.git@master#egg=libsvmintel
+```
+
+Alternately, installing from source code can be done by:
+```bash
+pip install -e <PATH_TO_LIBSVMINTEL_SOURCE>
 ```
 
 Uninstall can be done as usual:
